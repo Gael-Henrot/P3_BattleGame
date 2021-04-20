@@ -21,15 +21,34 @@ class Game {
 //Definition of a player
 class Player {
     let playerName: String
-    var team: [Character]
+    var team: [Character] = []
+    let teamMaxNumber = 3 // Maximal number of characters in one team
     
     init(playerName: String) {
         self.playerName = playerName
-        self.team = createATeam()
+        //self.team = createATeam()
+        while team.count < teamMaxNumber {
+            print("\(playerName), choose your character number \(team.count + 1):"
+            + "\n 0. A knight with X Life Points, a X with X damages and who heal X LP"
+            + "\n 1. A dwarf with X Life Points, a X with X damages and who heal X LP"
+            + "\n 2. A elf with X Life Points, a X with X damages and who heal X LP"
+            )
+            switch nonOptionalReadLine() {
+            case "0":
+                team.append(Knight())
+            case "1":
+                team.append(Dwarf())
+            case "2":
+                team.append(Elf())
+            default:
+                print("Wrong choice")
+            }
+        }
+        print("The team is complete !")
     }
 }
 
-//This function create a team
+/*//This function create a team
 func createATeam () -> [Character] {
     let teamMaxNumber = 3 // Maximal number of characters in one team
     var team: [Character] = []
@@ -41,22 +60,18 @@ func createATeam () -> [Character] {
         )
         switch nonOptionalReadLine() {
         case "0":
-            let characterChoosed = Knight()
-            team.append(characterChoosed)
+            team.append(Knight())
         case "1":
-            let characterChoosed = Dwarf()
-            team.append(characterChoosed)
+            team.append(Dwarf())
         case "2":
-            let characterChoosed = Elf()
-            team.append(characterChoosed)
+            team.append(Elf())
         default:
             print("Wrong choice")
         }
     }
-    print("The team is complete.")
+    print("The team is complete and composed by \(Character.names)")
     return team
-}
-
+}*/
 
 //This function read the console line (avoid optional)
 func nonOptionalReadLine() -> String {
@@ -69,12 +84,13 @@ func nonOptionalReadLine() -> String {
 
 //This function ask a name for a character (can not be empty)
 func askForCharacterName() -> String {
+    print("Please choose a name:")
     let nameChoosed = nonOptionalReadLine()
-    print("Veuillez choisir un nom:")
     if Character.names.contains(nameChoosed) || nameChoosed == "" { // si le nom est déjà utilisé ou s'il ne remplit rien, cela redemande un nom
-        print("Ce nom est déjà utilisé.")
+        print("This name is already used.")
         return askForCharacterName()
     }
+    Character.names.append(nameChoosed)
     return nameChoosed
 }
 
