@@ -11,26 +11,54 @@ import Foundation
 //MARK: Initialization
 //========================
 
-//Définition d'une partie
+//Definition of a game
 class Game {
     let player1 = Player (playerName: "Joueur 1")
     let player2 = Player (playerName: "Joueur 2")
-    var gameTurn = 0
+    var gameRound = 0
 }
 
-//Définition d'un joueur
+//Definition of a player
 class Player {
     let playerName: String
-    let teamMaxNumber = 3 // Nombre maxi de personnages dans l'équipe
-    var teamCounter = 1
-    var team: [Character] = []
+    var team: [Character]
     
     init(playerName: String) {
         self.playerName = playerName
+        self.team = createATeam()
     }
 }
 
-//Fonction de lecture de la ligne de la console
+//This function create a team
+func createATeam () -> [Character] {
+    let teamMaxNumber = 3 // Maximal number of characters in one team
+    var team: [Character] = []
+    while team.count < teamMaxNumber {
+        print("Choose your character number \(team.count + 1):"
+        + "\n 0. A knight with X Life Points, a X with X damages and who heal X LP"
+        + "\n 1. A dwarf with X Life Points, a X with X damages and who heal X LP"
+        + "\n 2. A elf with X Life Points, a X with X damages and who heal X LP"
+        )
+        switch nonOptionalReadLine() {
+        case "0":
+            let characterChoosed = Knight()
+            team.append(characterChoosed)
+        case "1":
+            let characterChoosed = Dwarf()
+            team.append(characterChoosed)
+        case "2":
+            let characterChoosed = Elf()
+            team.append(characterChoosed)
+        default:
+            print("Wrong choice")
+        }
+    }
+    print("The team is complete.")
+    return team
+}
+
+
+//This function read the console line (avoid optional)
 func nonOptionalReadLine() -> String {
     if let line = readLine() {
         return line
@@ -39,12 +67,7 @@ func nonOptionalReadLine() -> String {
     }
 }
 
-//Fonction qui permet de créer une équipe
-func createATeam () {
-    
-}
-
-//Fonction qui permet de demander un nom pour un personnage
+//This function ask a name for a character (can not be empty)
 func askForCharacterName() -> String {
     let nameChoosed = nonOptionalReadLine()
     print("Veuillez choisir un nom:")
@@ -59,39 +82,42 @@ func askForCharacterName() -> String {
 //MARK: Character classes definition
 //=================================
 
-//Définition d'un personnage standard
+//Definition of a standard character
 class Character {
     let name:String
-    static var names: [String] = [] // Liste des noms de personnage déjà utilisés
+    static var names: [String] = [] // List of character names already used
     var life:Int
     var weapon:Weapon
-    init (life:Int, weapon:Weapon) {
+    var heal:Int
+    init (life:Int, weapon:Weapon, heal:Int) {
+        self.name = askForCharacterName()
         self.weapon = weapon
         self.life = life
-        self.name = askForCharacterName()
+        self.heal = heal
+        
     }
 }
 
 
-//Problème de définition de l'arme (n'utilise pas les classes d'arme créées)
-//Définition d'un chevalier
+//Trouble: these classes are not using the weapon classes!!
+//Definition of a knight
 class Knight: Character {
     init() {
-        super.init(life: 24, weapon: Weapon(damage: 4, weaponName: "Sword"))
+        super.init(life: 24, weapon: Weapon(damage: 4, weaponName: "Sword"), heal: 2)
     }
 }
 
-//Définition d'un nain
+//Definition of a dwarf
 class Dwarf: Character {
     init() {
-        super.init(life: 26, weapon: Weapon(damage: 3, weaponName: "Hammer"))
+        super.init(life: 26, weapon: Weapon(damage: 3, weaponName: "Hammer"), heal: 2)
     }
 }
 
-//Définition d'un elfe
-class Elv: Character {
+//Definition of a elf
+class Elf: Character {
     init() {
-        super.init(life: 20, weapon: Weapon(damage: 5, weaponName: "Bow"))
+        super.init(life: 20, weapon: Weapon(damage: 5, weaponName: "Bow"), heal: 3)
     }
 }
 
@@ -99,7 +125,7 @@ class Elv: Character {
 //MARK: Weapon classes definition
 //===============================
 
-//Définition d'une arme standard
+//Definition of a standard weapon
 class Weapon {
     let damage: Int
     let weaponName: String
@@ -110,21 +136,21 @@ class Weapon {
     }
 }
 
-//Définition d'une épée
+//Definition of a sword
 class Sword: Weapon {
     init() {
         super.init(damage: 4 , weaponName: "Sword")
     }
 }
 
-//Définition d'un marteau
+//Definition of a warhammer
 class Hammer: Weapon {
     init() {
         super.init(damage: 5 , weaponName: "Hammer")
     }
 }
 
-//Définition d'un arc
+//Definition of a bow
 class Bow: Weapon {
     init() {
         super.init(damage: 6 , weaponName: "Bow")
