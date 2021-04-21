@@ -13,8 +13,8 @@ import Foundation
 
 //Definition of a game
 class Game {
-    let player1 = Player (playerName: "Joueur 1")
-    let player2 = Player (playerName: "Joueur 2")
+    let player1 = Player ()
+    let player2 = Player ()
     var gameRound = 0
 }
 
@@ -23,12 +23,11 @@ class Player {
     let playerName: String
     var team: [Character] = []
     let teamMaxNumber = 3 // Maximal number of characters in one team
-    
-    init(playerName: String) {
-        self.playerName = playerName
-        //self.team = createATeam()
+    static var names: [String] = []
+    init() {
+        self.playerName = askForPlayerName()
         while team.count < teamMaxNumber {
-            print("\(playerName), choose your character number \(team.count + 1):"
+            print("\(playerName), choose your character number \(team.count + 1) by selecting among the following numbers:"
             + "\n 0. A knight with X Life Points, a X with X damages and who heal X LP"
             + "\n 1. A dwarf with X Life Points, a X with X damages and who heal X LP"
             + "\n 2. A elf with X Life Points, a X with X damages and who heal X LP"
@@ -41,37 +40,12 @@ class Player {
             case "2":
                 team.append(Elf())
             default:
-                print("Wrong choice")
+                print("Wrong choice, choose a valid number.")
             }
         }
-        print("The team is complete !")
+        print("your team is complete !")
     }
 }
-
-/*//This function create a team
-func createATeam () -> [Character] {
-    let teamMaxNumber = 3 // Maximal number of characters in one team
-    var team: [Character] = []
-    while team.count < teamMaxNumber {
-        print("Choose your character number \(team.count + 1):"
-        + "\n 0. A knight with X Life Points, a X with X damages and who heal X LP"
-        + "\n 1. A dwarf with X Life Points, a X with X damages and who heal X LP"
-        + "\n 2. A elf with X Life Points, a X with X damages and who heal X LP"
-        )
-        switch nonOptionalReadLine() {
-        case "0":
-            team.append(Knight())
-        case "1":
-            team.append(Dwarf())
-        case "2":
-            team.append(Elf())
-        default:
-            print("Wrong choice")
-        }
-    }
-    print("The team is complete and composed by \(Character.names)")
-    return team
-}*/
 
 //This function read the console line (avoid optional)
 func nonOptionalReadLine() -> String {
@@ -81,12 +55,23 @@ func nonOptionalReadLine() -> String {
         return ""
     }
 }
+//This function ask a name for a player (can not be empty)
+func askForPlayerName() -> String {
+    print("Player, please choose a name:")
+    let nameChoosed = nonOptionalReadLine()
+    if Player.names.contains(nameChoosed) || nameChoosed == ""{
+        print("This name is already used.")
+        return askForPlayerName()
+    }
+    Player.names.append(nameChoosed)
+    return nameChoosed
+}
 
 //This function ask a name for a character (can not be empty)
 func askForCharacterName() -> String {
-    print("Please choose a name:")
+    print("Please choose a name for your character:")
     let nameChoosed = nonOptionalReadLine()
-    if Character.names.contains(nameChoosed) || nameChoosed == "" { // si le nom est déjà utilisé ou s'il ne remplit rien, cela redemande un nom
+    if Character.names.contains(nameChoosed) || nameChoosed == "" || Player.names.contains(nameChoosed){ // if the name is already used or is empty, it ask another one.
         print("This name is already used.")
         return askForCharacterName()
     }
@@ -177,3 +162,5 @@ class Bow: Weapon {
 //MARK: GAME
 //===================
 var aGame = Game()
+print("\(aGame.player1.playerName), here your team \(aGame.player1.team)") // This line give the composition of player 1 team
+print("\(aGame.player2.playerName), here your team \(aGame.player2.team)") // This line give the composition of player 2 team
