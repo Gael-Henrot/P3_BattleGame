@@ -15,7 +15,7 @@ import Foundation
 class Game {
     let player1 = Player ()
     let player2 = Player ()
-    var gameRound = 0
+    var roundCounter = 0
 }
 
 //Definition of a player
@@ -43,7 +43,14 @@ class Player {
                 print("Wrong choice, choose a valid number.")
             }
         }
-        print("your team is complete !")
+        print("Your team is complete !")
+    }
+    
+    func attackWithCharacter() {
+    }
+    
+    func healWWithCharacter() {
+        
     }
 }
 
@@ -96,6 +103,14 @@ class Character {
         self.life = life
         self.heal = heal
         
+    }
+    
+    func attack(characterAttacked: Character) {
+        characterAttacked.life -= self.weapon.damage
+    }
+    
+    func heal(characterHealed: Character) {
+        characterHealed.life += self.heal
     }
 }
 
@@ -159,8 +174,33 @@ class Bow: Weapon {
 }
 
 //===================
-//MARK: GAME
+//MARK: Game progress
 //===================
 var aGame = Game()
 print("\(aGame.player1.playerName), here your team \(aGame.player1.team)") // This line give the composition of player 1 team
 print("\(aGame.player2.playerName), here your team \(aGame.player2.team)") // This line give the composition of player 2 team
+
+var activePlayer = aGame.player1
+/*var activeCharacter = chooseACharacter()
+var passiveCharacter = chooseACharacter()
+
+func chooseACharacter() -> Character {
+    var characterChoosed: Character
+    print("\(activePlayer.playerName), choose your character by selecting among the following numbers:"
+            + "\n 0. \(activePlayer.team[0])"
+            + "\n 1. \(activePlayer.team[1])"
+            + "\n 2. \(activePlayer.team[2])"
+    )
+    switch nonOptionalReadLine() {
+    case "0":
+        characterChoosed = activePlayer.team[0]
+    case "1":
+        characterChoosed = activePlayer.team[1]
+    case "2":
+        characterChoosed = activePlayer.team[2]
+    default:
+        print("Wrong choice, choose a valid number.")
+    }
+    return characterChoosed
+}*/
+
