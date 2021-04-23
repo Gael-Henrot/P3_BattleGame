@@ -15,31 +15,35 @@ import Foundation
 class Game {
     let player1 = Player ()
     let player2 = Player ()
-    var roundCounter = 0
+    var roundCounter = 0 // Count the number of round
     
-    func start() {
-        while player1.haveTeamAlive() && player2.haveTeamAlive() {
-            let currentPlayer = playerTurn()
-            let other = otherPlayer()
+    func start() { // Function that begin a game
+        while player1.haveTeamAlive() && player2.haveTeamAlive() { // Loop that verified that all the players have an alive team
+            let currentPlayer = playerTurn() // Define who is the current player
+            let theOtherPlayer = otherPlayer() // Define who is the other player
             
+            print("\(currentPlayer.playerName), choose a character in your team who will do the action:")
+            let currentCharacter: Character = currentPlayer.chooseACharacterInTeam()
             
-            let currentCharacter: Character = currentPlayer.chooseACharacterInYourTeam()
-            
-            //TODO:  Ask for action to do
-            let action = "heal" // or "attack"
-            if action == "heal" {
-                let characterToHeal = currentPlayer.chooseACharacterInYourTeam()
-                currentCharacter.heal(characterHealed: characterToHeal)
-            } else {
-                let characterToAttack = other.chooseACharacterInYourTeam()
+            let action = askForAction()
+            switch action {
+            case "attack":
+                let characterToAttack = theOtherPlayer.chooseACharacterInTeam()
                 currentCharacter.attack(characterAttacked: characterToAttack)
+                print("\(currentCharacter.name) has attacked \(characterToAttack.name)")
+            case "heal":
+                let characterToHeal = currentPlayer.chooseACharacterInTeam()
+                currentCharacter.heal(characterHealed: characterToHeal)
+                print("\(currentCharacter.name) has healed \(characterToHeal.name)")
+            default :
+                print("error")
             }
             
             roundCounter += 1
         }
     }
     
-    func playerTurn() -> Player {
+    func playerTurn() -> Player { // Define which player is the current character
         if roundCounter % 2 == 0 {
             return player1
         } else {
@@ -47,7 +51,7 @@ class Game {
         }
     }
     
-    func otherPlayer() -> Player {
+    func otherPlayer() -> Player { // Define which player is the other player (not current)
         if roundCounter % 2 == 0 {
             return player2
         } else {
@@ -55,6 +59,40 @@ class Game {
         }
     }
     
+    func askForAction() -> String {
+        print("What do you want to do?"
+        + "\n1. Attack an enemy character?"
+        + "\n2. Heal a character in your team?")
+        let action = nonOptionalReadLine()
+        
+        switch action {
+        case "1": return "attack"
+        case "2": return "heal"
+        default:
+            print("Wrong choice, choose a valid number.")
+            return askForAction()
+        }
+        
+    }
+    
+    enum ActionType {
+        case attack
+        case heal
+//        case specialPower   For later
+    }
+    
+    func askForActionType() -> ActionType {
+        print("Choose your action: 1. attack 2. heal")
+        let action = nonOptionalReadLine()
+        
+        switch action {
+        case "1": return .attack
+        case "2": return .heal
+        default:
+            print("Wrong choice, choose a valid number.")
+            return askForActionType()
+        }
+    }
 }
 /*
 enum ActionType {
@@ -108,8 +146,8 @@ case .specialPower:
 }
 */
 
-// let myGame = Game()
-// myGame.start()
+let myGame = Game()
+myGame.start()
 
 //Definition of a player
 class Player {
@@ -139,7 +177,7 @@ class Player {
         print("\(playerName), your team is complete !")
     }
     
-    func haveTeamAlive() -> Bool {
+    func haveTeamAlive() -> Bool { //function which verify if each character in a team is alive
         var alive = false
         for character in team {
             if character.life > 0 {
@@ -149,7 +187,7 @@ class Player {
         return alive
     }
     
-    func attackWithCharacter() {
+    /*func attackWithCharacter() {
         if activePlayer.playerName == aGame.player1.playerName {
             passivePlayer = aGame.player2
         } else {
@@ -167,7 +205,7 @@ class Player {
     }
     
     func healWithCharacter() {
-        if activePlayer == aGame.player1 {
+        if activePlayer.playerName == aGame.player1.playerName {
             passivePlayer = aGame.player1
         } else {
             passivePlayer = aGame.player2
@@ -178,26 +216,41 @@ class Player {
         passiveCharacter = characterHealed
         characterHealer.heal(characterHealed: characterHealed)
         print("\(activePlayer.playerName), \(activeCharacter.name) healed \(passiveCharacter.name)")
-    }
+    }*/
     
-    func chooseACharacterInYourTeam() -> Character {
+    func chooseACharacterInTeam() -> Character {
         var characterChoosed:Character
-        print("Please choose a character in your team:"
-            + "\n 1. Your first character"
-            + "\n 2. Your second character"
-            + "\n 3. Your third character")
+        print("Please choose a character:"
+            + "\n 1. \(team[0].name) with \(team[0].life)LP, \(team[0].weapon.damage) DP and \(team[0].heal) HP"
+            + "\n 2. \(team[1].name) with \(team[1].life)LP, \(team[1].weapon.damage) DP and \(team[1].heal) HP"
+            + "\n 3. \(team[2].name) with \(team[2].life)LP, \(team[2].weapon.damage) DP and \(team[2].heal) HP"
+        + "\n Informations: If a character is dead, you can not choose him (LP = 0).\n LP = Life Points, DP = Damage Points, HP = Heal Points")
         switch nonOptionalReadLine() {
         case "1":
-            characterChoosed = team[0]
+            if team[0].isAlive == true { // If the character is dead, the player can not select the character
+                characterChoosed = team[0]
+            } else {
+                print("The character choosed is dead, please choose another one")
+                return chooseACharacterInTeam()
+            }
         case "2":
-            characterChoosed = team[1]
+            if team[1].isAlive == true {
+                characterChoosed = team[1]
+            } else {
+                print("The character choosed is dead, please choose another one")
+                return chooseACharacterInTeam()
+            }
         case "3":
-            characterChoosed = team[2]
+            if team[2].isAlive == true {
+                characterChoosed = team[2]
+            } else {
+                print("The character choosed is dead, please choose another one")
+                return chooseACharacterInTeam()
+            }
         default:
             print("Wrong choice, choose a valid number.")
-            return chooseACharacterInYourTeam()
+            return chooseACharacterInTeam()
         }
-        
         return characterChoosed
     }
 }
@@ -212,10 +265,13 @@ func nonOptionalReadLine() -> String {
 }
 //This function ask a name for a player (can not be empty)
 func askForPlayerName() -> String {
-    print("Player, please choose a name:")
+    print("Player, what is your name?")
     let nameChoosed = nonOptionalReadLine()
-    if Player.names.contains(nameChoosed) || nameChoosed == ""{
+    if Player.names.contains(nameChoosed) {
         print("This name is already used.")
+        return askForPlayerName()
+    } else if nameChoosed == "" {
+        print("The name can not be empty.")
         return askForPlayerName()
     }
     Player.names.append(nameChoosed)
@@ -226,8 +282,11 @@ func askForPlayerName() -> String {
 func askForCharacterName() -> String {
     print("Please choose a name for your character:")
     let nameChoosed = nonOptionalReadLine()
-    if Character.names.contains(nameChoosed) || nameChoosed == "" || Player.names.contains(nameChoosed){ // if the name is already used or is empty, it ask another one.
+    if Character.names.contains(nameChoosed) || Player.names.contains(nameChoosed){ // if the name is already used or is empty, it ask another one.
         print("This name is already used.")
+        return askForCharacterName()
+    } else if nameChoosed == "" {
+        print("This name is already used")
         return askForCharacterName()
     }
     Character.names.append(nameChoosed)
@@ -243,22 +302,34 @@ class Character {
     let name:String
     static var names: [String] = [] // List of character names already used
     var life:Int
+    let lifeMax:Int
     var weapon:Weapon
     var heal:Int
+    var isAlive: Bool = true
     init (life:Int, weapon:Weapon, heal:Int) {
         self.name = askForCharacterName()
         self.weapon = weapon
         self.life = life
         self.heal = heal
-        
+        self.lifeMax = life
     }
     
     func attack(characterAttacked: Character) {
         characterAttacked.life -= weapon.damage
+        if characterAttacked.life < 0 { // This IF set the life of attacked character to 0 if it becomes less than 0
+            characterAttacked.life = 0
+        }
+        if characterAttacked.life == 0 { //This IF define that is the life of the character is 0, the character is dead
+            characterAttacked.isAlive = false
+            print("\(characterAttacked.name) is dead!")
+        }
     }
     
     func heal(characterHealed: Character) {
         characterHealed.life += heal
+        if characterHealed.life > characterHealed.lifeMax { // This IF set the life of healed character to his max value if it becomes more than this value
+            characterHealed.life = characterHealed.lifeMax
+        }
     }
 }
 
@@ -324,7 +395,7 @@ class Bow: Weapon {
 //===================
 //MARK: Game progress
 //===================
-var aGame = Game()
+/*var aGame = Game()
 print("\(aGame.player1.playerName), here your team \(aGame.player1.team)") // This line give the composition of player 1 team
 print("\(aGame.player2.playerName), here your team \(aGame.player2.team)") // This line give the composition of player 2 team
 
@@ -406,24 +477,6 @@ func chooseAnEnemyCharacter() -> Character { // Allows to chose a character in t
     return characterChoosed!
 }
 
-
-func chooseAnAction() {
-    print("\(activePlayer.playerName), choose your action by selecting among the following numbers:"
-            + "\n 0. Attack an enemy character"
-            + "\n 1. Heal a character in your team"
-    )
-    switch nonOptionalReadLine() {
-        case "0":
-            activePlayer.attackWithCharacter()
-        case "1":
-            activePlayer.healWithCharacter()
-    default:
-        print("Wrong choice, choose a valid number.")
-        return chooseAnAction()
-        
-}
-
-
 }
 while (aGame.player1.team[0].life + aGame.player1.team[1].life + aGame.player1.team[2].life) > 0 || (aGame.player2.team[0].life + aGame.player2.team[1].life + aGame.player2.team[2].life) > 0 {
     print ("Active player before round is \(activePlayer.playerName) and active character is \(activeCharacter.name). Passive player is \(passivePlayer.playerName) and passive Character is \(passiveCharacter.name)")
@@ -433,4 +486,4 @@ while (aGame.player1.team[0].life + aGame.player1.team[1].life + aGame.player1.t
         activePlayer = aGame.player2
     } else { activePlayer = aGame.player1}
     aGame.roundCounter += 1
-}
+}*/
