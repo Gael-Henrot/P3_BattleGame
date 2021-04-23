@@ -63,12 +63,14 @@ class Game {
             let currentPlayer = playerTurn() // Define who is the current player
             let theOtherPlayer = otherPlayer() // Define who is the other player
             
-            print("\(currentPlayer.playerName), choose a character in your team who will do the action:")
+            print("\(currentPlayer.playerName), choose the character in your team who will do the action:")
             let currentCharacter: Character = currentPlayer.chooseACharacterInTeam()
             
             let action = askForAction()
             switch action {
             case "attack":
+                currentCharacter.weapon = chest(currentCharacter: currentCharacter) // Activate the chest (can be a random weapon or let the current weapon)
+                print("\(currentPlayer.playerName), choose the enemy character who will suffer the attack:")
                 let characterToAttack = theOtherPlayer.chooseACharacterInTeam()
                 currentCharacter.attack(characterAttacked: characterToAttack)
                 print("\(currentCharacter.name) has attacked \(characterToAttack.name)")
@@ -76,6 +78,7 @@ class Game {
                     print("\(characterToAttack.name) is dead!")
                 }
             case "heal":
+                print("\(currentPlayer.playerName), choose the character in your team who will be healed:")
                 let characterToHeal = currentPlayer.chooseACharacterInTeam()
                 currentCharacter.heal(characterHealed: characterToHeal)
                 print("\(currentCharacter.name) has healed \(characterToHeal.name)")
@@ -121,71 +124,35 @@ class Game {
     
     func askForAction() -> String {
         print("What do you want to do?"
-        + "\n1. Attack an enemy character?"
-        + "\n2. Heal a character in your team?")
+        + "\na. Attack an enemy character?"
+        + "\nh. Heal a character in your team?")
         let action = nonOptionalReadLine()
         
         switch action {
-        case "1": return "attack"
-        case "2": return "heal"
+        case "a": return "attack"
+        case "h": return "heal"
         default:
-            print("Wrong choice, choose a valid number.")
+            print("Wrong choice, choose a valid one.")
             return askForAction()
         }
-        
     }
-}
-/*
-enum ActionType {
-    case attack
-    case heal
-    case specialPower
-    
-    func description() -> String {
-        switch self {
-        case .attack:
-            return "Action d'attaque sur un adversaire"
-        case .heal:
-            return "Action de soin sur un personnage de son equipe"
-        case .specialPower:
-            return "Attaque speciale !!"
+    func chest(currentCharacter:Character) -> Weapon {
+        let rightNumber:Int = 5
+        let dice:Int = Int(arc4random_uniform(5))
+        let randomDamage:Int = Int(arc4random_uniform(15))
+        let randomWeapon:Weapon = Weapon(damage: randomDamage, weaponName: "Magic Wand")
+        var theWeaponSelected:Weapon
+        if dice == rightNumber {
+            print("You found a chest !"
+                    + "\nYou open it and now \(currentCharacter.name) have a \(randomWeapon.weaponName) with \(randomWeapon.damage) DP!")
+            theWeaponSelected = randomWeapon
+        } else {
+            theWeaponSelected = currentCharacter.weapon
         }
+        return theWeaponSelected
     }
 }
 
-func askForActionType() -> ActionType {
-    print("choose: 1. attack 2. heal")
-    let value = nonOptionalReadLine()
-    
-    switch value {
-    case "1": return .attack
-    case "2": return .heal
-    default:
-        print("incorrect choice")
-        return askForActionType()
-    }
-    
-    if value == "1" {
-        return ActionType.attack
-    } else if value == "2" {
-        return ActionType.heal
-    } else {
-        print("incorrect choice")
-        return askForActionType()
-    }
-}
-
-let myChoice = askForActionType()
-print("Vous venez de choisir \(myChoice), voici sa description: \(myChoice.description())")
-switch myChoice {
-case .attack:
-    print("ok je fais une attacke")
-case .heal:
-    print("ok je fais un soin")
-case .specialPower:
-    print("Oula c'est une attaque speciale")
-}
-*/
 //==============================
 // MARK: Definition of a player
 //==============================
@@ -199,9 +166,9 @@ class Player {
         self.playerName = askForPlayerName()
         while team.count < teamMaxNumber { // Execute this loop until all the team is complete
             print("\(playerName), choose your character number \(team.count + 1) by selecting among the following numbers:"
-            + "\n 0. A knight with X Life Points, a X with X damages and who heal X LP"
-            + "\n 1. A dwarf with X Life Points, a X with X damages and who heal X LP"
-            + "\n 2. A elf with X Life Points, a X with X damages and who heal X LP"
+                    + "\n 0. A knight with X Life Points, a X with X damages and who heal X LP"
+                    + "\n 1. A dwarf with X Life Points, a X with X damages and who heal X LP"
+                    + "\n 2. A elf with X Life Points, a X with X damages and who heal X LP"
             )
             switch nonOptionalReadLine() {
             case "0":
@@ -214,7 +181,8 @@ class Player {
                 print("Wrong choice, choose a valid number.")
             }
         }
-        print("\(playerName), your team is complete !")
+        print("\(playerName), your team is complete !"
+                + "\nYour team is composed by a \(team[0].type) named \(team[0].name), a \(team[1].type) named \(team[1].name) and a \(team[2].type) named \(team[2].name)")
     }
     
     func hasTeamAlive() -> Bool { //function which verify if each character in a team is alive
@@ -229,11 +197,10 @@ class Player {
     
     func chooseACharacterInTeam() -> Character {
         var characterChoosed:Character
-        print("Please choose a character:"
-            + "\n 1. \(team[0].name) with \(team[0].life)LP, \(team[0].weapon.damage) DP and \(team[0].heal) HP"
-            + "\n 2. \(team[1].name) with \(team[1].life)LP, \(team[1].weapon.damage) DP and \(team[1].heal) HP"
-            + "\n 3. \(team[2].name) with \(team[2].life)LP, \(team[2].weapon.damage) DP and \(team[2].heal) HP"
-        + "\n Informations: If a character is dead, you can not choose him (LP = 0).\n LP = Life Points, DP = Damage Points, HP = Heal Points")
+        print("1. \(team[0].name) with \(team[0].life) LP, \(team[0].weapon.damage) DP and \(team[0].heal) HP"
+            + "\n2. \(team[1].name) with \(team[1].life) LP, \(team[1].weapon.damage) DP and \(team[1].heal) HP"
+            + "\n3. \(team[2].name) with \(team[2].life) LP, \(team[2].weapon.damage) DP and \(team[2].heal) HP"
+        + "\nInformations: If a character is dead, you can not choose him (LP = 0).\nLP = Life Points, DP = Damage Points, HP = Heal Points")
         switch nonOptionalReadLine() {
         case "1":
             if team[0].isAlive == true { // If the character is dead, the player can not select the character
@@ -277,12 +244,14 @@ class Character {
     var weapon:Weapon
     var heal:Int
     var isAlive: Bool = true
-    init (life:Int, weapon:Weapon, heal:Int) {
+    var type:String
+    init (type: String, life:Int, weapon:Weapon, heal:Int) {
         self.name = askForCharacterName()
         self.weapon = weapon
         self.life = life
         self.heal = heal
         self.lifeMax = life
+        self.type = type
     }
     
     func attack(characterAttacked: Character) {
@@ -308,21 +277,21 @@ class Character {
 //Definition of a knight
 class Knight: Character {
     init() {
-        super.init(life: 24, weapon: Weapon(damage: 4, weaponName: "Sword"), heal: 2)
+        super.init(type: "knight", life: 24, weapon: Sword(), heal: 2)
     }
 }
 
 //Definition of a dwarf
 class Dwarf: Character {
     init() {
-        super.init(life: 26, weapon: Weapon(damage: 3, weaponName: "Hammer"), heal: 2)
+        super.init(type: "dwarf", life: 26, weapon: Hammer(), heal: 2)
     }
 }
 
 //Definition of a elf
 class Elf: Character {
     init() {
-        super.init(life: 20, weapon: Weapon(damage: 5, weaponName: "Bow"), heal: 3)
+        super.init(type: "elf", life: 20, weapon: Bow(), heal: 3)
     }
 }
 
@@ -344,21 +313,21 @@ class Weapon {
 //Definition of a sword
 class Sword: Weapon {
     init() {
-        super.init(damage: 4 , weaponName: "Sword")
+        super.init(damage: 4 , weaponName: "sword")
     }
 }
 
 //Definition of a warhammer
 class Hammer: Weapon {
     init() {
-        super.init(damage: 5 , weaponName: "Hammer")
+        super.init(damage: 5 , weaponName: "hammer")
     }
 }
 
 //Definition of a bow
 class Bow: Weapon {
     init() {
-        super.init(damage: 6 , weaponName: "Bow")
+        super.init(damage: 6 , weaponName: "bow")
     }
 }
 
