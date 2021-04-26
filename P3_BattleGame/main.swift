@@ -83,14 +83,14 @@ class Game {
                 currentCharacter.heal(characterHealed: characterToHeal)
                 print("\(currentCharacter.name) has healed \(characterToHeal.name)")
             default :
-                print("")
+                print("This choice will never happend.")
             }
             roundCounter += 1
         }
         if player1.hasTeamAlive() == true {
-            print("Well done \(player1.playerName)! You win the game")
+            print("Well done \(player1.playerName)! You win the game !")
         } else {
-            print("Well done \(player2.playerName)! You win the game")
+            print("Well done \(player2.playerName)! You win the game !")
         }
         print("The game lasted \(roundCounter) rounds."
                 + "\nHere the \(player1.playerName)'s team:"
@@ -166,9 +166,10 @@ class Player {
         self.playerName = askForPlayerName()
         while team.count < teamMaxNumber { // Execute this loop until all the team is complete
             print("\(playerName), choose your character number \(team.count + 1) by selecting among the following numbers:"
-                    + "\n 0. A knight with X Life Points, a X with X damages and who heal X LP"
-                    + "\n 1. A dwarf with X Life Points, a X with X damages and who heal X LP"
-                    + "\n 2. A elf with X Life Points, a X with X damages and who heal X LP"
+                    + "\n0. A knight with 24 Life Points, a sword with 4 damages and who heal 3 LP."
+                    + "\n1. A dwarf with 26 Life Points, a hammer with 5 damages and who heal 2 LP."
+                    + "\n2. A elf with 22 Life Points, a bow with 3 damages and who heal 4 LP."
+                    + "\n3. A magician with 15 Life Points, a stick with 2 damages and who heal 6LP."
             )
             switch nonOptionalReadLine() {
             case "0":
@@ -177,12 +178,14 @@ class Player {
                 team.append(Dwarf())
             case "2":
                 team.append(Elf())
+            case "3":
+                team.append(Magician())
             default:
                 print("Wrong choice, choose a valid number.")
             }
         }
         print("\(playerName), your team is complete !"
-                + "\nYour team is composed by a \(team[0].type) named \(team[0].name), a \(team[1].type) named \(team[1].name) and a \(team[2].type) named \(team[2].name)")
+                + "\nYour team is composed by a \(team[0].type) named \(team[0].name), a \(team[1].type) named \(team[1].name) and a \(team[2].type) named \(team[2].name).")
     }
     
     func hasTeamAlive() -> Bool { //function which verify if each character in a team is alive
@@ -197,30 +200,37 @@ class Player {
     
     func chooseACharacterInTeam() -> Character {
         var characterChoosed:Character
-        print("1. \(team[0].name) with \(team[0].life) LP, \(team[0].weapon.damage) DP and \(team[0].heal) HP"
-            + "\n2. \(team[1].name) with \(team[1].life) LP, \(team[1].weapon.damage) DP and \(team[1].heal) HP"
-            + "\n3. \(team[2].name) with \(team[2].life) LP, \(team[2].weapon.damage) DP and \(team[2].heal) HP"
-        + "\nInformations: If a character is dead, you can not choose him (LP = 0).\nLP = Life Points, DP = Damage Points, HP = Heal Points")
+        if team[0].isAlive == true {
+            print("1. \(team[0].name) with \(team[0].life) LP, \(team[0].weapon.damage) DP and \(team[0].heal) HP")
+        }
+        if team[1].isAlive == true {
+            print("2. \(team[1].name) with \(team[1].life) LP, \(team[1].weapon.damage) DP and \(team[1].heal) HP")
+        }
+        if team[2].isAlive == true {
+            print("3. \(team[2].name) with \(team[2].life) LP, \(team[2].weapon.damage) DP and \(team[2].heal) HP")
+        }
+        print("Informations: LP = Life Points, DP = Damage Points, HP = Heal Points")
+        
         switch nonOptionalReadLine() {
         case "1":
             if team[0].isAlive == true { // If the character is dead, the player can not select the character
                 characterChoosed = team[0]
             } else {
-                print("The character choosed is dead, please choose another one")
+                print("The character choosed is dead, please choose another one.")
                 return chooseACharacterInTeam()
             }
         case "2":
             if team[1].isAlive == true {
                 characterChoosed = team[1]
             } else {
-                print("The character choosed is dead, please choose another one")
+                print("The character choosed is dead, please choose another one.")
                 return chooseACharacterInTeam()
             }
         case "3":
             if team[2].isAlive == true {
                 characterChoosed = team[2]
             } else {
-                print("The character choosed is dead, please choose another one")
+                print("The character choosed is dead, please choose another one.")
                 return chooseACharacterInTeam()
             }
         default:
@@ -277,7 +287,7 @@ class Character {
 //Definition of a knight
 class Knight: Character {
     init() {
-        super.init(type: "knight", life: 24, weapon: Sword(), heal: 2)
+        super.init(type: "knight", life: 24, weapon: Sword(), heal: 3)
     }
 }
 
@@ -291,7 +301,14 @@ class Dwarf: Character {
 //Definition of a elf
 class Elf: Character {
     init() {
-        super.init(type: "elf", life: 20, weapon: Bow(), heal: 3)
+        super.init(type: "elf", life: 20, weapon: Bow(), heal: 4)
+    }
+}
+
+//Definition of a magician
+class Magician: Character {
+    init() {
+        super.init(type: "magician", life: 15, weapon: Stick(), heal: 6)
     }
 }
 
@@ -327,7 +344,14 @@ class Hammer: Weapon {
 //Definition of a bow
 class Bow: Weapon {
     init() {
-        super.init(damage: 6 , weaponName: "bow")
+        super.init(damage: 3 , weaponName: "bow")
+    }
+}
+
+//Definition of a fighting stick
+class Stick: Weapon {
+    init() {
+        super.init(damage: 2 , weaponName: "stick")
     }
 }
 
@@ -337,8 +361,3 @@ class Bow: Weapon {
 
 let myGame = Game()
 myGame.start()
-
-/*var aGame = Game()
-print("\(aGame.player1.playerName), here your team \(aGame.player1.team)") // This line give the composition of player 1 team
-print("\(aGame.player2.playerName), here your team \(aGame.player2.team)") // This line give the composition of player 2 team
-*/
