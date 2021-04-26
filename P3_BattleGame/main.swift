@@ -19,35 +19,6 @@ func nonOptionalReadLine() -> String {
         return ""
     }
 }
-//This function ask a name for a player (can not be empty)
-func askForPlayerName() -> String {
-    print("Player, what is your name?")
-    let nameChoosed = nonOptionalReadLine()
-    if Player.names.contains(nameChoosed) {
-        print("This name is already used.")
-        return askForPlayerName()
-    } else if nameChoosed == "" {
-        print("The name can not be empty.")
-        return askForPlayerName()
-    }
-    Player.names.append(nameChoosed)
-    return nameChoosed
-}
-
-//This function ask a name for a character (can not be empty)
-func askForCharacterName() -> String {
-    print("Please choose a name for your character:")
-    let nameChoosed = nonOptionalReadLine()
-    if Character.names.contains(nameChoosed) || Player.names.contains(nameChoosed){ // if the name is already used or is empty, it ask another one.
-        print("This name is already used.")
-        return askForCharacterName()
-    } else if nameChoosed == "" {
-        print("The name can not be empty.")
-        return askForCharacterName()
-    }
-    Character.names.append(nameChoosed)
-    return nameChoosed
-}
 
 //========================
 //MARK: Definition of a game
@@ -87,23 +58,22 @@ class Game {
             }
             roundCounter += 1
         }
+        
+        // Endgame characteritics (it print the winner name and the state of each character (dead or alive or its LP))
         if player1.hasTeamAlive() == true {
             print("Well done \(player1.playerName)! You win the game !")
         } else {
             print("Well done \(player2.playerName)! You win the game !")
         }
         print("The game lasted \(roundCounter) rounds."
-                + "\nHere the \(player1.playerName)'s team:"
-                + "\n\(player1.team[0].name) with \(player1.team[0].life) LP."
-                + "\n\(player1.team[1].name) with \(player1.team[1].life) LP."
-                + "\n\(player1.team[2].name) with \(player1.team[2].life) LP."
-                + "\nHere the \(player2.playerName)'s team:"
-                + "\n\(player2.team[0].name) with \(player2.team[0].life) LP."
-                + "\n\(player2.team[1].name) with \(player2.team[1].life) LP."
-                + "\n\(player2.team[2].name) with \(player2.team[2].life) LP."
-        
-        
-        )
+                + "\nHere the \(player1.playerName)'s team:")
+            showEndCharacteristic(character: player1.team[0])
+            showEndCharacteristic(character: player1.team[1])
+            showEndCharacteristic(character: player1.team[2])
+        print("Here the \(player2.playerName)'s team:")
+            showEndCharacteristic(character: player2.team[0])
+            showEndCharacteristic(character: player2.team[1])
+            showEndCharacteristic(character: player2.team[2])
     }
     
     func playerTurn() -> Player { // Define which player is the current character
@@ -151,6 +121,13 @@ class Game {
         }
         return theWeaponSelected
     }
+    func showEndCharacteristic(character : Character) {
+        if character.isAlive == false {
+            print("\(character.name) is dead...")
+        } else {
+            print("\(character.name) is still alive with \(character.life) LP.")
+        }
+    }
 }
 
 //==============================
@@ -163,6 +140,20 @@ class Player {
     let teamMaxNumber = 3 // Maximal number of characters in one team
     static var names: [String] = []
     init() {
+        func askForPlayerName() -> String {
+            print("Player, what is your name?")
+            let nameChoosed = nonOptionalReadLine()
+            if Player.names.contains(nameChoosed) {
+                print("This name is already used.")
+                return askForPlayerName()
+            } else if nameChoosed == "" {
+                print("The name can not be empty.")
+                return askForPlayerName()
+            }
+            Player.names.append(nameChoosed)
+            return nameChoosed
+        }
+        
         self.playerName = askForPlayerName()
         while team.count < teamMaxNumber { // Execute this loop until all the team is complete
             print("\(playerName), choose your character number \(team.count + 1) by selecting among the following numbers:"
@@ -187,7 +178,7 @@ class Player {
         print("\(playerName), your team is complete !"
                 + "\nYour team is composed by a \(team[0].type) named \(team[0].name), a \(team[1].type) named \(team[1].name) and a \(team[2].type) named \(team[2].name).")
     }
-    
+     
     func hasTeamAlive() -> Bool { //function which verify if each character in a team is alive
         var alive = false
         for character in team {
@@ -198,7 +189,7 @@ class Player {
         return alive
     }
     
-    func chooseACharacterInTeam() -> Character {
+    func chooseACharacterInTeam() -> Character { // This function allows the player to choose a character in his team or in the other player team.
         var characterChoosed:Character
         if team[0].isAlive == true {
             print("1. \(team[0].name) with \(team[0].life) LP, \(team[0].weapon.damage) DP and \(team[0].heal) HP")
@@ -256,6 +247,21 @@ class Character {
     var isAlive: Bool = true
     var type:String
     init (type: String, life:Int, weapon:Weapon, heal:Int) {
+        
+        //This function ask a name for a character (can not be empty)
+        func askForCharacterName() -> String {
+            print("Please choose a name for your character:")
+            let nameChoosed = nonOptionalReadLine()
+            if Character.names.contains(nameChoosed) || Player.names.contains(nameChoosed){ // if the name is already used or is empty, it ask another one.
+                print("This name is already used.")
+                return askForCharacterName()
+            } else if nameChoosed == "" {
+                print("The name can not be empty.")
+                return askForCharacterName()
+            }
+            Character.names.append(nameChoosed)
+            return nameChoosed
+        }
         self.name = askForCharacterName()
         self.weapon = weapon
         self.life = life
@@ -282,8 +288,6 @@ class Character {
     }
 }
 
-
-//Trouble: these classes are not using the weapon classes!!
 //Definition of a knight
 class Knight: Character {
     init() {
