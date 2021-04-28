@@ -66,15 +66,9 @@ class Game {
         } else {
             print("Well done \(player2.playerName)! You win the game !")
         }
-        print("The game lasted \(roundCounter) rounds."
-                + "\nHere the \(player1.playerName)'s team:")
-        showEndCharacteristic(character: player1.team[0])
-        showEndCharacteristic(character: player1.team[1])
-        showEndCharacteristic(character: player1.team[2])
-        print("Here the \(player2.playerName)'s team:")
-        showEndCharacteristic(character: player2.team[0])
-        showEndCharacteristic(character: player2.team[1])
-        showEndCharacteristic(character: player2.team[2])
+        print("The game lasted \(roundCounter) rounds.")
+        showEndCharacteristic(player: player1)
+        showEndCharacteristic(player: player2)
     }
     
     func playerTurn() -> Player { // Define which player is the current character, beginNumber allows to choose the first player randomly
@@ -123,11 +117,15 @@ class Game {
         }
         return theWeaponSelected
     }
-    func showEndCharacteristic(character : Character) { // show the endgame characteritics for one character: dead or alive with his remaining life points.
-        if character.isAlive == false {
-            print("\(character.name) is dead...")
-        } else {
-            print("\(character.name) is still alive with \(character.life) LP.")
+    
+    func showEndCharacteristic(player : Player) { // show the endgame characteritics for each character of one player: dead or alive with his remaining life points.
+        print("Here the \(player.playerName)'s team:")
+        for eachCharacter in player.team {
+            if eachCharacter.isAlive == false {
+                print("\(eachCharacter.name) is dead...")
+            } else {
+                print("\(eachCharacter.name) is still alive with \(eachCharacter.life) LP.")
+            }
         }
     }
 }
