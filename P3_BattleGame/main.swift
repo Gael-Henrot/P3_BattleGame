@@ -25,10 +25,10 @@ func nonOptionalReadLine() -> String {
 //========================
 
 class Game {
-    let player1 = Player ()
-    let player2 = Player ()
-    var roundCounter = 0 // Count the number of round
-    let beginNumber = Int(arc4random_uniform(2)) // Allows to define the first player randomly
+    private let player1 = Player ()
+    private let player2 = Player ()
+    private var roundCounter = 0 // Count the number of round
+    private let beginNumber = Int(arc4random_uniform(2)) // Allows to define the first player randomly
     
     func start() { // Function that start a game
         
@@ -71,7 +71,7 @@ class Game {
         showEndCharacteristic(player: player2)
     }
     
-    func playerTurn() -> Player { // Define which player is the current character, beginNumber allows to choose the first player randomly
+    private func playerTurn() -> Player { // Define which player is the current character, beginNumber allows to choose the first player randomly
         if (roundCounter + beginNumber) % 2 == 0 {
             return player1
         } else {
@@ -79,7 +79,7 @@ class Game {
         }
     }
     
-    func otherPlayer() -> Player { // Define which player is the other player (not current)
+    private func otherPlayer() -> Player { // Define which player is the other player (not current)
         if (roundCounter + beginNumber) % 2 == 0 {
             return player2
         } else {
@@ -87,7 +87,7 @@ class Game {
         }
     }
     
-    func askForAction() -> String { // Allows the player to choose between to attack a character in the enemy team or to heal a character in his team
+    private func askForAction() -> String { // Allows the player to choose between to attack a character in the enemy team or to heal a character in his team
         print("What do you want to do?"
                 + "\na. Attack an enemy character?"
                 + "\nh. Heal a character in your team?")
@@ -102,7 +102,7 @@ class Game {
         }
     }
     
-    func chest(currentCharacter:Character) -> Weapon { // this function decided if the chest appear or not
+    private func chest(currentCharacter:Character) -> Weapon { // this function decided if the chest appear or not
         let rightNumber:Int = 5 // define the number to do with the virtual dice to find the chest
         let dice:Int = Int(arc4random_uniform(6)) // represent the dice between 0 and 5
         let randomDamage:Int = Int(arc4random_uniform(15)) // define the random damage for the weapon in the chest (between 0 and 14)
@@ -118,7 +118,7 @@ class Game {
         return theWeaponSelected
     }
     
-    func showEndCharacteristic(player : Player) { // show the endgame characteritics for each character of one player: dead or alive with his remaining life points.
+    private func showEndCharacteristic(player : Player) { // show the endgame characteritics for each character of one player: dead or alive with his remaining life points.
         print("Here the \(player.playerName)'s team:")
         for eachCharacter in player.team {
             if eachCharacter.isAlive == false {
@@ -137,7 +137,7 @@ class Game {
 class Player {
     let playerName: String
     var team: [Character] = [] // List of character in the player team
-    let teamMaxNumber = 3 // Maximal number of characters in one team
+    private let teamMaxNumber = 3 // Maximal number of characters in one team
     static var names: [String] = [] // List of player names already used
     init() {
         func askForPlayerName() -> String { // Ask a player name, the player provide a name. If the name is already in the list of player names or if the name is empty, the fucntion ask for another name
@@ -241,7 +241,7 @@ class Character {
     let name:String
     static var names: [String] = [] // List of character names already used
     var life:Int // Life points
-    let lifeMax:Int // Maximal life points that the character can have
+    private let lifeMax:Int // Maximal life points that the character can have
     var weapon:Weapon
     var heal:Int // Heal points
     var isAlive: Bool = true // Verify if the character is alive or not
