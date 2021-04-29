@@ -25,10 +25,24 @@ func nonOptionalReadLine() -> String {
 //========================
 
 class Game {
-    private let player1 = Player ()
-    private let player2 = Player ()
+    private let player1: Player
+    private let player2: Player
     private var roundCounter = 0 // Count the number of round
     private let beginNumber = Int(arc4random_uniform(2)) // Allows to define the first player randomly
+    
+    
+    init() {
+        // Display the instructions of the game
+        print("This game is a turn by turn two players game."
+                + "\nThe first player will choose his 3 fighters team and the second player will do the same just after the first."
+                + "\nWhen all teams are complete, the game can begin!"
+                + "\nThe player will choose a character in his team, will choose an action (attack or heal) then choose a character which will suffer the action."
+                + "\nThe last player with at least one character alive in his team win!"
+                + "\nLet the game begin!")
+        
+        player1 = Player()
+        player2 = Player()
+    }
     
     func start() { // Function that start a game
         
@@ -41,7 +55,7 @@ class Game {
             
             let action = askForAction()
             switch action {
-            case "attack":
+            case .attack:
                 currentCharacter.weapon = chest(currentCharacter: currentCharacter) // Activate the chest (can be a random weapon or let the current weapon)
                 print("\(currentPlayer.playerName), choose the enemy character who will suffer the attack (by selecting number):")
                 let characterToAttack = theOtherPlayer.chooseACharacterInTeam()
@@ -50,12 +64,11 @@ class Game {
                 if characterToAttack.isAlive == false {
                     print("\(characterToAttack.name) is dead!")
                     }
-            case "heal":
+            case .heal:
                 print("\(currentPlayer.playerName), choose the character in your team who will be healed (by selecting number):")
                 let characterToHeal = currentPlayer.chooseACharacterInTeam()
                 currentCharacter.heal(characterHealed: characterToHeal)
                 print("\(currentCharacter.name) has healed \(characterToHeal.name)")
-            default: print("")
             }
             roundCounter += 1
         }
@@ -67,8 +80,13 @@ class Game {
             print("Well done \(player2.playerName)! You win the game !")
         }
         print("The game lasted \(roundCounter) rounds.")
-        showEndCharacteristic(player: player1)
-        showEndCharacteristic(player: player2)
+        player1.showCaracteristics()
+        player2.showCaracteristics()
+    }
+    
+    private enum ActionType { //Enumerate the action possibilities
+        case attack
+        case heal
     }
     
     private func playerTurn() -> Player { // Define which player is the current character, beginNumber allows to choose the first player randomly
@@ -87,15 +105,15 @@ class Game {
         }
     }
     
-    private func askForAction() -> String { // Allows the player to choose between to attack a character in the enemy team or to heal a character in his team
+    private func askForAction() -> ActionType { // Allows the player to choose between to attack a character in the enemy team or to heal a character in his team
         print("What do you want to do?"
                 + "\na. Attack an enemy character?"
                 + "\nh. Heal a character in your team?")
         let action = nonOptionalReadLine()
         
         switch action {
-        case "a": return "attack"
-        case "h": return "heal"
+        case "a": return ActionType.attack
+        case "h": return ActionType.heal
         default:
             print("Wrong choice, choose a valid one.")
             return askForAction()
@@ -117,17 +135,6 @@ class Game {
         }
         return theWeaponSelected
     }
-    
-    private func showEndCharacteristic(player : Player) { // show the endgame characteritics for each character of one player: dead or alive with his remaining life points.
-        print("Here the \(player.playerName)'s team:")
-        for eachCharacter in player.team {
-            if eachCharacter.isAlive == false {
-                print("\(eachCharacter.name) is dead...")
-            } else {
-                print("\(eachCharacter.name) is still alive with \(eachCharacter.life) LP.")
-            }
-        }
-    }
 }
 
 //==============================
@@ -139,22 +146,22 @@ class Player {
     var team: [Character] = [] // List of character in the player team
     private let teamMaxNumber = 3 // Maximal number of characters in one team
     static var names: [String] = [] // List of player names already used
-    init() {
-        func askForPlayerName() -> String { // Ask a player name, the player provide a name. If the name is already in the list of player names or if the name is empty, the fucntion ask for another name
-            print("Player, what is your name?")
-            let nameChoosed = nonOptionalReadLine()
-            if Player.names.contains(nameChoosed) {
-                print("This name is already used.")
-                return askForPlayerName()
-            } else if nameChoosed == "" {
-                print("The name can not be empty.")
-                return askForPlayerName()
-            }
-            Player.names.append(nameChoosed) // If the name is good, it added to the list of player names.
-            return nameChoosed
+    static func askForPlayerName() -> String { // Ask a player name, the player provide a name. If the name is already in the list of player names or if the name is empty, the fucntion ask for another name
+        print("Player, what is your name?")
+        let nameChoosed = nonOptionalReadLine()
+        if Player.names.contains(nameChoosed) {
+            print("This name is already used.")
+            return askForPlayerName()
+        } else if nameChoosed == "" {
+            print("The name can not be empty.")
+            return askForPlayerName()
         }
-        
-        self.playerName = askForPlayerName()
+        Player.names.append(nameChoosed) // If the name is good, it added to the list of player names.
+        return nameChoosed
+    }
+    
+    init() {
+        self.playerName = Player.askForPlayerName()
         while team.count < teamMaxNumber { // Execute this loop until all the team is complete (define by teamMaxNumber)
             print("\(playerName), choose your character number \(team.count + 1) by selecting among the following numbers:" // This give the characteristics of each possible character
                     + "\n0. A knight with 24 Life Points, a sword with 4 damages and who heal 3 LP."
@@ -179,7 +186,7 @@ class Player {
                 + "\nYour team is composed by a \(team[0].type) named \(team[0].name), a \(team[1].type) named \(team[1].name) and a \(team[2].type) named \(team[2].name).")
     }
     
-    func hasTeamAlive() -> Bool { //function which verify if each character in a team is alive
+    func hasTeamAlive() -> Bool { //Method which verify if each character in a team is alive
         var alive = false
         for character in team {
             if character.life > 0 {
@@ -189,46 +196,34 @@ class Player {
         return alive
     }
     
-    func chooseACharacterInTeam() -> Character { // This function allows the player to choose a character in his team or in the other player team.
-        var characterChoosed:Character
-        if team[0].isAlive == true { // If the character is alive, his chacrateristics are displayed
-            print("1. \(team[0].name) with \(team[0].life) LP, \(team[0].weapon.damage) DP and \(team[0].heal) HP")
-        }
-        if team[1].isAlive == true {
-            print("2. \(team[1].name) with \(team[1].life) LP, \(team[1].weapon.damage) DP and \(team[1].heal) HP")
-        }
-        if team[2].isAlive == true {
-            print("3. \(team[2].name) with \(team[2].life) LP, \(team[2].weapon.damage) DP and \(team[2].heal) HP")
+    func chooseACharacterInTeam() -> Character { // This method allows the player to choose a character in his team or in the other player team.
+        for (index, character) in team.enumerated() {
+            character.printDescription(position: index+1)
         }
         print("Informations: LP = Life Points, DP = Damage Points, HP = Heal Points")
-        
-        switch nonOptionalReadLine() {
-        case "1":
-            if team[0].isAlive == true { // If the character is dead, the player can not select the character
-                characterChoosed = team[0]
-            } else {
-                print("The character choosed is dead, please choose another one.")
-                return chooseACharacterInTeam()
-            }
-        case "2":
-            if team[1].isAlive == true {
-                characterChoosed = team[1]
-            } else {
-                print("The character choosed is dead, please choose another one.")
-                return chooseACharacterInTeam()
-            }
-        case "3":
-            if team[2].isAlive == true {
-                characterChoosed = team[2]
-            } else {
-                print("The character choosed is dead, please choose another one.")
-                return chooseACharacterInTeam()
-            }
-        default:
+        let choiceAsString = nonOptionalReadLine()
+        guard let choice = Int(choiceAsString), choice > 0 && choice <= team.count else {
             print("Wrong choice, choose a valid number.")
             return chooseACharacterInTeam()
         }
-        return characterChoosed
+        let character = team[choice-1]
+        guard character.isAlive else {
+            print("The character choosed is dead, please choose another one.")
+            return chooseACharacterInTeam()
+        }
+        
+        return character
+    }
+    // This method show the end caracteristics for each character in the player team.
+    func showCaracteristics() {
+        print("Here the \(playerName)'s team:")
+        for eachCharacter in team {
+            if eachCharacter.isAlive == false {
+                print("\(eachCharacter.name) is dead...")
+            } else {
+                print("\(eachCharacter.name) is still alive with \(eachCharacter.life) LP.")
+            }
+        }
     }
 }
 
@@ -246,23 +241,25 @@ class Character {
     var heal:Int // Heal points
     var isAlive: Bool = true // Verify if the character is alive or not
     var type:String // type of character (only used in description)
+    
+    //This function ask a name for a character (can not be empty, same operation as askForPlayerName())
+    static func askForCharacterName() -> String {
+        print("Please choose a name for your character:")
+        let nameChoosed = nonOptionalReadLine()
+        if Character.names.contains(nameChoosed) || Player.names.contains(nameChoosed){ // if the name is already used by an other player or a character or is empty, it ask another one.
+            print("This name is already used.")
+            return askForCharacterName()
+        } else if nameChoosed == "" {
+            print("The name can not be empty.")
+            return askForCharacterName()
+        }
+        Character.names.append(nameChoosed)
+        return nameChoosed
+    }
+    
     init (type: String, life:Int, weapon:Weapon, heal:Int) {
         
-        //This function ask a name for a character (can not be empty, same operation as askForPlayerName())
-        func askForCharacterName() -> String {
-            print("Please choose a name for your character:")
-            let nameChoosed = nonOptionalReadLine()
-            if Character.names.contains(nameChoosed) || Player.names.contains(nameChoosed){ // if the name is already used by an other player or a character or is empty, it ask another one.
-                print("This name is already used.")
-                return askForCharacterName()
-            } else if nameChoosed == "" {
-                print("The name can not be empty.")
-                return askForCharacterName()
-            }
-            Character.names.append(nameChoosed)
-            return nameChoosed
-        }
-        self.name = askForCharacterName()
+        self.name = Character.askForCharacterName()
         self.weapon = weapon
         self.life = life
         self.heal = heal
@@ -284,6 +281,14 @@ class Character {
         characterHealed.life += heal
         if characterHealed.life > characterHealed.lifeMax { // Set the life of healed character to his max value if it becomes more than this value
             characterHealed.life = characterHealed.lifeMax
+        }
+    }
+    
+    func printDescription(position: Int) { // This method prints the state of the character (for choice)
+        if isAlive {
+            print("\(position). \(name) with \(life) LP, \(weapon.damage) DP and \(heal) HP")
+        } else {
+            print("\(position). \(name) is dead ☠️")
         }
     }
 }
@@ -362,7 +367,7 @@ class Stick: Weapon {
 //===================
 //MARK: Game program
 //===================
-var restartGame:Bool = true
+
 func restartAGame() -> Bool { // Function that restart a game
     print ("Would you like to start a new game? Type y to start a new game.")
     Player.names.removeAll() // Clear the list of player names
@@ -374,16 +379,10 @@ func restartAGame() -> Bool { // Function that restart a game
         return false
     }
 }
-// Display the instructions of the game
-print("This game is a turn by turn two players game."
-        + "\nThe first player will choose his 3 fighters team and the second player will do the same just after the first."
-        + "\nWhen all teams are complete, the game can begin!"
-        + "\nThe player will choose a character in his team, will choose an action (attack or heal) then choose a character which will suffer the action."
-        + "\nThe last player with at least one character alive in his team win!"
-        + "\nLet the game begin!")
 
-while restartGame == true {
+var restartGame:Bool = false
+repeat { // repeat the game until the players say they do not want.
     let myGame = Game()
     myGame.start()
     restartGame = restartAGame()
-}
+} while restartGame == true
